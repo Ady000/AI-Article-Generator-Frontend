@@ -9,26 +9,26 @@ function App() {
   const [article, setArticle] = useState("");
   const [error, setError] = useState("");
 
-  const handleGenerate = async () => {
-    if (!topic) {
-      setError("Please enter a topic.");
-      return;
-    }
-
+  const fetchArticle = async () => {
+    if (!topic.trim()) return alert("Please enter a topic!");
+    
     setLoading(true);
-    setArticle("");
-    setError("");
-
     try {
-      const response = await axios.post("https://ai-article-generator-backend.onrender.com/generate-article", { topic });
-      setArticle(response.data.article);
-    } catch (err) {
-      setError("Failed to fetch article. Try again.");
-      console.error(err);
+        const response = await fetch(`https://ai-article-generator-backend.onrender.com/generate-article`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic })
+        });
+
+        const data = await response.json();
+        setArticle(data.article || "Failed to generate article.");
+    } catch (error) {
+        console.error("Error fetching article:", error);
+        setArticle("Error fetching article.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
@@ -51,7 +51,7 @@ function App() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
           />
-          <Button variant="contained" color="primary" onClick={handleGenerate} disabled={loading}>
+          <Button variant="contained" color="primary" onClick={fetchArticle} disabled={loading}>
             {loading ? <CircularProgress size={24} color="inherit" /> : "Generate Article"}
           </Button>
         </div>
