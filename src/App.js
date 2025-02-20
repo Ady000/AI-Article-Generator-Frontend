@@ -20,7 +20,7 @@ function App() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/generate-article", { topic });
+      const response = await axios.post("https://ai-article-generator-backend.onrender.com/generate-article", { topic });
       setArticle(response.data.article);
     } catch (err) {
       setError("Failed to fetch article. Try again.");
