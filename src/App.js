@@ -6,19 +6,24 @@ import { CircularProgress, TextField, Button, Card, CardContent, Typography } fr
 function App() {
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [article, setArticle] = useState("");
   const [error, setError] = useState("");
 
   const fetchArticle = async () => {
-    if (!topic.trim()) return alert("Please enter a topic!");
-    
+    if (!topic.trim()) {
+      setError("Please enter a topic.");
+      return;
+    }
     setLoading(true);
+    setLoadingMessage("Searching for related articles...");
     try {
         const response = await fetch(`https://ai-article-generator-backend.onrender.com/generate-article`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ topic })
         });
+        setLoadingMessage("Creating article..."); // Change message after fetching
 
         const data = await response.json();
         setArticle(data.article || "Failed to generate article.");
@@ -27,6 +32,7 @@ function App() {
         setArticle("Error fetching article.");
     } finally {
         setLoading(false);
+        setLoadingMessage("");
     }
 };
 
@@ -55,6 +61,17 @@ function App() {
             {loading ? <CircularProgress size={24} color="inherit" /> : "Generate Article"}
           </Button>
         </div>
+        {/* Show Loading Message */}
+        {loading && (
+          <motion.p 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.3 }} 
+            className="mt-4 text-yellow-400 text-lg"
+          >
+            {loadingMessage}
+          </motion.p>
+        )}
 
         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
 
